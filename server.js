@@ -1,8 +1,12 @@
 import express from "express";
 import { createPool } from "mysql2";
 import cors from "cors";
+import dotenv from "dotenv";
 
+dotenv.config();
 const app = express();
+
+const PORT = process.env.PORT || 8082;
 
 // const conn = createConnection({
 //   host: "localhost",
@@ -12,11 +16,11 @@ const app = express();
 // });
 
 const conn = createPool({
-  host: "sql12.freemysqlhosting.net",
-  user: "sql12651413",
-  password: "khYTIzBA2z",
-  database: "sql12651413",
-  port: 3306,
+  host: process.env.SERVER_HOST,
+  user: process.env.SERVER_USER,
+  password: process.env.SERVER_PASSWORD,
+  database: process.env.SERVER_DATABASE,
+  port: process.env.SERVER_PORT,
 });
 
 const userTbl = "users";
@@ -160,7 +164,8 @@ app.post("/createaccount", (req, res) => {
       res.status(500).send(false);
     }
   });
+  ``;
 });
 
-app.listen(8082);
+app.listen(PORT);
 console.log("Server running at 8082 port");
