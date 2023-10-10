@@ -1,23 +1,43 @@
 import express from "express";
-import { createConnection } from "mysql2";
+import { createPool } from "mysql2";
 import cors from "cors";
 
 const app = express();
 
-const conn = createConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  database: "tododb",
+// const conn = createConnection({
+//   host: "localhost",
+//   user: "root",
+//   password: "root",
+//   database: "tododb",
+// });
+
+const conn = createPool({
+  host: "sql12.freemysqlhosting.net",
+  user: "sql12651413",
+  password: "khYTIzBA2z",
+  database: "sql12651413",
+  port: 3306,
 });
-const userTbl = "user";
+
+const userTbl = "users";
 const todos = "todos";
-conn.connect((err) => {
+
+// conn.connect((err) => {
+//   if (err) {
+//     // throw err;
+//     console.log(err);
+//   } else {
+//     console.log("Connection Success");
+//   }
+// });
+
+conn.getConnection((err, connection) => {
   if (err) {
-    // throw err;
     console.log(err);
-  } else {
-    console.log("Connection Success");
+    return;
+  }
+  if (connection) {
+    console.log("sql12.freemysqlhosting.net connected successfully");
   }
 });
 
