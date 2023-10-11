@@ -1,5 +1,5 @@
 import express from "express";
-import { createPool } from "mysql2";
+import { createConnection, createPool } from "mysql2";
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -41,7 +41,7 @@ conn.getConnection((err, connection) => {
     return;
   }
   if (connection) {
-    console.log("sql12.freemysqlhosting.net connected successfully");
+    console.log("freemysqlhosting.net connected successfully");
   }
 });
 
@@ -78,7 +78,6 @@ function fetchtodo(body, callback) {
   let qry = `SELECT * FROM ${todos} WHERE userid=${body.userid}`;
   conn.query(qry, (err, result) => {
     if (err) console.log(err);
-    console.log(result);
     callback(result);
   });
 }
@@ -102,10 +101,21 @@ const loginuser = (body, callback) => {
 };
 
 const createAccount = (body, callback) => {
-  let qry = `INSERT INTO ${userTbl} (name,email,password) VALUES('${body.name}','${body.email}', '${body.password}')`;
-  conn.query(qry, (error, result) => {
+  let ifExistQry = `SELECT * FROM ${userTbl} WHERE LOWER(email)='${body.email.toLowerCase()}'`;
+
+  conn.query(ifExistQry, (error, result) => {
     if (error) console.log(error);
-    callback(result);
+    if (result.length === 0) {
+      let insertQry = `INSERT INTO ${userTbl} (name,email,password) VALUES('${body.name}','${body.email}', '${body.password}')`;
+      conn.query(insertQry, (error, result) => {
+        if (error) console.log(error);
+        if (result.affectedRows > 0) {
+          callback({ statusCode: 200 });
+        }
+      });
+    } else {
+      callback({ statusCode: 409 });
+    }
   });
 };
 
@@ -156,16 +166,10 @@ app.post("/loginuser", (req, res) => {
 
 // create user account
 app.post("/createaccount", (req, res) => {
-  console.log(req.body);
   createAccount(req.body, (result) => {
-    if (result.affectedRows > 0) {
-      res.status(200).send(true);
-    } else {
-      res.status(500).send(false);
-    }
+    res.status(200).send(result);
   });
-  ``;
 });
 
 app.listen(PORT);
-console.log("Server running at 8082 port");
+console.log(`Server running...`);
